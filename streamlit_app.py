@@ -50,11 +50,7 @@ nf_B = n0_B - b * x_max
 nf_C = n0_C + c * x_max
 nf_D = n0_D + d * x_max
 
-# ==========================================
-# RÉSULTATS ET GRAPHIQUE
-# ==========================================
-st.subheader("3. Bilan et Histogramme")
-st.success(f"**Conclusion :** {bilan_texte} | $x_{{max}} = {x_max:.2f}$ mol")
+
 
 # ==========================================
 # RÉSULTATS ET GRAPHIQUE OPTIMISÉ
