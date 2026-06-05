@@ -56,24 +56,65 @@ nf_D = n0_D + d * x_max
 st.subheader("3. Bilan et Histogramme")
 st.success(f"**Conclusion :** {bilan_texte} | $x_{{max}} = {x_max:.2f}$ mol")
 
-# Création du graphique
-categories = ['A (Initial)', 'A (Final)', 'B (Initial)', 'B (Final)', 
-              'C (Initial)', 'C (Final)', 'D (Initial)', 'D (Final)']
-valeurs = [n0_A, nf_A, n0_B, nf_B, n0_C, nf_C, n0_D, nf_D]
-couleurs = ['#ff9999', '#cc0000', '#ffcc99', '#ff6600', '#99ff99', '#009900', '#99ccff', '#0000cc']
+# ==========================================
+# RÉSULTATS ET GRAPHIQUE OPTIMISÉ
+# ==========================================
+st.subheader("3. Bilan et Histogramme")
+st.success(f"**Conclusion :** {bilan_texte} | $x_{{max}} = {x_max:.2f}$ mol")
 
-fig, ax = plt.subplots(figsize=(10, 5))
+# 1. Réorganisation des données : d'abord TOUT l'initial, puis TOUT le final
+categories = [
+    'A\n(Init)', 'B\n(Init)', 'C\n(Init)', 'D\n(Init)',  # Bloc Initial
+    'A\n(Fin)', 'B\n(Fin)', 'C\n(Fin)', 'D\n(Fin)'      # Bloc Final
+]
+
+valeurs = [
+    n0_A, n0_B, n0_C, n0_D,  # Éléments initiaux
+    nf_A, nf_B, nf_C, nf_D   # Éléments finaux
+]
+
+# Couleurs adaptées (Clair pour l'initial, Foncé pour le final)
+# Rouge = A, Orange = B, Vert = C, Bleu = D
+couleurs = [
+    '#ff9999', '#ffcc99', '#99ff99', '#99ccff',  # Initial (A, B, C, D)
+    '#cc0000', '#ff6600', '#009900', '#0000cc'   # Final (A, B, C, D)
+]
+
+# Création de la figure
+fig, ax = plt.subplots(figsize=(11, 6))
 barres = ax.bar(categories, valeurs, color=couleurs, edgecolor='black', width=0.6)
 
+# Affichage des valeurs au-dessus de chaque barre
 for barre in barres:
     hauteur = barre.get_height()
     if hauteur >= 0:
-        ax.text(barre.get_x() + barre.get_width()/2, hauteur + 0.05, 
+        ax.text(barre.get_x() + barre.get_width()/2, hauteur + 0.02 * (max(valeurs) if max(valeurs) > 0 else 1), 
                 f"{hauteur:.2f}", ha='center', va='bottom', fontsize=9, fontweight='bold')
 
-ax.set_ylabel(r"Quantité de matière $n \text{ (mol)}$")
-ax.grid(axis='y', linestyle='--', alpha=0.5)
-ax.set_ylim(0, max(valeurs) * 1.2 if max(valeurs) > 0 else 1.0)
+# --- AJOUT DU "MUR" DE SÉPARATION ---
+# Le mur se situe pile entre l'indice 3 (D Init) et l'indice 4 (A Fin), donc à la position x = 3.5
+ax.axvline(x=3.5, color='black', linestyle='-', linewidth=3, label="Déroulement de la réaction")
 
-# Affichage du graphique dans l'application
+# --- AJOUT DE LA FLÈCHE D'ÉVOLUTION ---
+# On dessine une belle flèche qui part du bloc initial vers le bloc final
+ax.annotate(
+    "ÉVOLUTION DE LA RÉACTION", 
+    xy=(4.5, max(valeurs) * 1.1 if max(valeurs) > 0 else 1.0),   # Pointe de la flèche (côté Final)
+    xytext=(0.5, max(valeurs) * 1.1 if max(valeurs) > 0 else 1.0), # Début de la flèche (côté Initial)
+    arrowprops=dict(facecolor='black', shrink=0.08, headwidth=10, width=3),
+    fontsize=10, fontweight='bold', ha='left', va='center'
+)
+
+# Habillage de l'axe et grilles
+ax.set_ylabel(r"Quantité de matière $n \text{ (mol)}$", fontsize=11)
+ax.grid(axis='y', linestyle='--', alpha=0.5)
+
+# Titres des deux grands blocs pour guider la lecture
+ax.text(1.5, -max(valeurs)*0.15 if max(valeurs) > 0 else -0.15, "ÉTAIT INITIAL", fontsize=12, fontweight='bold', ha='center', color='gray')
+ax.text(5.5, -max(valeurs)*0.15 if max(valeurs) > 0 else -0.15, "ÉTAT FINAL", fontsize=12, fontweight='bold', ha='center', color='gray')
+
+# Limite supérieure automatique adaptée pour laisser la place à la flèche en haut
+ax.set_ylim(0, max(valeurs) * 1.3 if max(valeurs) > 0 else 1.5)
+
+# Affichage du graphique sur Streamlit
 st.pyplot(fig)
